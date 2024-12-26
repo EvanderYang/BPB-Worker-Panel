@@ -18,6 +18,6 @@ export function initializeParams(request, env) {
     if (pathName !== `/${userID}/secrets`) {
         if (!userID || !trojanPassword) throw new Error(`Please set 编号 and 密码 first. Please visit <a href="https://${hostName}/${userID}/secrets" target="_blank">here</a> to generate them.`, { cause: "init"});
         if (userID && !isValidUUID(userID)) throw new Error(`Invalid UUID: ${userID}`, { cause: "init"});
-        if (typeof env.bpb !== 'object') throw new Error('KV Dataset is not properly set! Please refer to tutorials.', { cause: "init"});
+        if (typeof env.库 !== 'object') throw new Error('KV Dataset is not properly set! Please refer to tutorials.', { cause: "init"});
     }
 }
