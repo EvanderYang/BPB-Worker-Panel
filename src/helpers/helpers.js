@@ -49,8 +49,8 @@ export async function handlePanel(request, env) {
     }
         
     const { proxySettings } = await getDataset(request, env);
-    const pwd = await env.bpb.get('pwd');
-    if (pwd && !auth) return Response.redirect(`${globalThis.urlOrigin}/login`, 302);
+    const pwd = await env.库.get('pwd');
+    if (pwd && !auth) return Response.redirect(`${globalThis.urlOrigin}/${userID}/login`, 302);
     const isPassSet = pwd?.length >= 8;
     return await renderHomePage(proxySettings, isPassSet);
 }

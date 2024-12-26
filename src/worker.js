@@ -37,22 +37,22 @@ export default {
                         if (globalThis.client === 'singbox' || globalThis.client === 'hiddify') return await getSingBoxWarpConfig(request, env, globalThis.client);
                         return await getXrayWarpConfigs(request, env, globalThis.client);
 
-                    case '/panel':
+                    case `${userID}/panel`:
                         return await handlePanel(request, env);
                                                       
-                    case '/login':
+                    case `${userID}/login`:
                         return await login(request, env);
                     
-                    case '/logout':                        
+                    case `${userID}/logout`:                        
                         return logout();        
 
-                    case '/panel/password':
+                    case `${userID}/panel/password`:
                         return await resetPassword(request, env);
                     
-                    case '/my-ip':
+                    case `${userID}/my-ip`:
                         return await getMyIP(request);
 
-                    case '/secrets':
+                    case `${userID}/secrets`:
                         return await renderSecretsPage();
 
                     default:
