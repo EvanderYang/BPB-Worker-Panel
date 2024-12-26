@@ -121,7 +121,7 @@ export async function renderLoginPage () {
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('/${userID}/login', {
+                const response = await fetch('/${globalThis.userID}/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain'
@@ -135,7 +135,7 @@ export async function renderLoginPage () {
                     console.error('Login failed:', errorMessage);
                     return;
                 }
-                window.location.href = '/${userID}/panel';
+                window.location.href = '/${globalThis.userID}/panel';
             } catch (error) {
                 console.error('Error during login:', error);
             }

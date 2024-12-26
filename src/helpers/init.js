@@ -15,9 +15,9 @@ export function initializeParams(request, env) {
     globalThis.client = searchParams.get('app');
     globalThis.urlOrigin = url.origin;
     globalThis.dohURL = env.DOH_URL || 'https://cloudflare-dns.com/dns-query';
-    if (pathName !== `/${userID}/secrets`) {
-        if (!userID || !trojanPassword) throw new Error(`Please set 编号 and 密码 first. Please visit <a href="https://${hostName}/${userID}/secrets" target="_blank">here</a> to generate them.`, { cause: "init"});
-        if (userID && !isValidUUID(userID)) throw new Error(`Invalid UUID: ${userID}`, { cause: "init"});
+    if (pathName !== `/${globalThis.userID}/secrets`) {
+        if (!userID || !trojanPassword) throw new Error(`Please set 编号 and 密码 first. Please visit <a href="https://${hostName}/${globalThis.userID}/secrets" target="_blank">here</a> to generate them.`, { cause: "init"});
+        if (userID && !isValidUUID(userID)) throw new Error(`Invalid UUID: ${globalThis.userID}`, { cause: "init"});
         if (typeof env.库 !== 'object') throw new Error('KV Dataset is not properly set! Please refer to tutorials.', { cause: "init"});
     }
 }
