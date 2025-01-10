@@ -4305,7 +4305,7 @@ async function renderLoginPage() {
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('/login', {
+                const response = await fetch('/${globalThis.userID}/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain'
@@ -4319,7 +4319,7 @@ async function renderLoginPage() {
                     console.error('Login failed:', errorMessage);
                     return;
                 }
-                window.location.href = '/panel';
+                window.location.href = '/${globalThis.userID}/panel';
             } catch (error) {
                 console.error('Error during login:', error);
             }
@@ -4347,13 +4347,13 @@ __name(renderLoginPage, "renderLoginPage");
 // src/authentication/auth.js
 async function generateJWTToken(request, env) {
   const password = await request.text();
-  const savedPass = await env.kv.get("pwd");
+  const savedPass = await env.\u5E93.get("pwd");
   if (password !== savedPass)
     return new Response("Method Not Allowed", { status: 405 });
-  let secretKey = await env.kv.get("secretKey");
+  let secretKey = await env.\u5E93.get("secretKey");
   if (!secretKey) {
     secretKey = generateSecretKey();
-    await env.kv.put("secretKey", secretKey);
+    await env.\u5E93.put("secretKey", secretKey);
   }
   const secret = new TextEncoder().encode(secretKey);
   const jwtToken = await new SignJWT({ userID: globalThis.userID }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("24h").sign(secret);
@@ -4373,7 +4373,7 @@ function generateSecretKey() {
 __name(generateSecretKey, "generateSecretKey");
 async function Authenticate(request, env) {
   try {
-    const secretKey = await env.kv.get("secretKey");
+    const secretKey = await env.\u5E93.get("secretKey");
     const secret = new TextEncoder().encode(secretKey);
     const cookie = request.headers.get("Cookie")?.match(/(^|;\s*)jwtToken=([^;]*)/);
     const token = cookie ? cookie[2] : null;
@@ -4402,13 +4402,13 @@ function logout() {
 __name(logout, "logout");
 async function resetPassword(request, env) {
   let auth = await Authenticate(request, env);
-  const oldPwd = await env.kv.get("pwd");
+  const oldPwd = await env.\u5E93.get("pwd");
   if (oldPwd && !auth)
     return new Response("Unauthorized!", { status: 401 });
   const newPwd = await request.text();
   if (newPwd === oldPwd)
     return new Response("Please enter a new Password!", { status: 400 });
-  await env.kv.put("pwd", newPwd);
+  await env.\u5E93.put("pwd", newPwd);
   return new Response("Success", {
     status: 200,
     headers: {
@@ -4484,7 +4484,7 @@ async function fetchWarpConfigs(env, proxySettings) {
     }
   }
   const configs = JSON.stringify(warpConfigs);
-  await env.kv.put("warpConfigs", configs);
+  await env.\u5E93.put("warpConfigs", configs);
   return { error: null, configs };
 }
 __name(fetchWarpConfigs, "fetchWarpConfigs");
@@ -4504,8 +4504,8 @@ var generateKeyPair = /* @__PURE__ */ __name(() => {
 async function getDataset(request, env) {
   let proxySettings, warpConfigs;
   try {
-    proxySettings = await env.kv.get("proxySettings", { type: "json" });
-    warpConfigs = await env.kv.get("warpConfigs", { type: "json" });
+    proxySettings = await env.\u5E93.get("proxySettings", { type: "json" });
+    warpConfigs = await env.\u5E93.get("warpConfigs", { type: "json" });
   } catch (error) {
     console.log(error);
     throw new Error(`An error occurred while getting KV - ${error}`);
@@ -4528,7 +4528,7 @@ async function updateDataset(request, env) {
   let currentSettings;
   if (!isReset) {
     try {
-      currentSettings = await env.kv.get("proxySettings", { type: "json" });
+      currentSettings = await env.\u5E93.get("proxySettings", { type: "json" });
     } catch (error) {
       console.log(error);
       throw new Error(`An error occurred while getting current KV settings - ${error}`);
@@ -4611,7 +4611,7 @@ async function updateDataset(request, env) {
     panelVersion: globalThis.panelVersion
   };
   try {
-    await env.kv.put("proxySettings", JSON.stringify(proxySettings));
+    await env.\u5E93.put("proxySettings", JSON.stringify(proxySettings));
     if (isReset)
       await updateWarpConfigs(request, env);
   } catch (error) {
@@ -5644,7 +5644,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                     const refreshButtonVal = refreshBtn.innerHTML;
                     refreshBtn.innerHTML = '\u231B Loading...';
 
-                    const response = await fetch('/panel', {
+                    const response = await fetch('/${globalThis.userID}/panel', {
                         method: 'POST',
                         body: formData,
                         credentials: 'include'
@@ -5700,7 +5700,7 @@ async function renderHomePage(proxySettings, isPassSet) {
             try {
                 const ipResponse = await fetch('https://ipwho.is/' + '?nocache=' + Date.now(), { cache: "no-store" });
                 const ipResponseObj = await ipResponse.json();
-                const geoResponse = await fetch('/my-ip', { 
+                const geoResponse = await fetch('/${globalThis.userID}/my-ip', { 
                     method: 'POST',
                     body: ipResponseObj.ip
                 });
@@ -5708,7 +5708,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                 updateUI(ipResponseObj.ip, ipGeoLocation.country, ipGeoLocation.countryCode, ipGeoLocation.city, ipGeoLocation.isp);
                 const cfIPresponse = await fetch('https://ipv4.icanhazip.com/?nocache=' + Date.now(), { cache: "no-store" });
                 const cfIP = await cfIPresponse.text();
-                const cfGeoResponse = await fetch('/my-ip', { 
+                const cfGeoResponse = await fetch('/${globalThis.userID}/my-ip', { 
                     method: 'POST',
                     body: cfIP.trim()
                 });
@@ -5924,7 +5924,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                 const applyButtonVal = applyButton.value;
                 applyButton.value = '\u231B Loading...';
 
-                const response = await fetch('/panel', {
+                const response = await fetch('/${globalThis.userID}/panel', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
@@ -5937,7 +5937,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                     const errorMessage = await response.text();
                     console.error(errorMessage, response.status);
                     alert('\u26A0\uFE0F Session expired! Please login again.');
-                    window.location.href = '/login';
+                    window.location.href = '/${globalThis.userID}/login';
                     return;
                 }                
                 alert('\u2705 Parameters applied successfully \u{1F60E}');
@@ -5951,7 +5951,7 @@ async function renderHomePage(proxySettings, isPassSet) {
             event.preventDefault();
 
             try {
-                const response = await fetch('/logout', {
+                const response = await fetch('/${globalThis.userID}/logout', {
                     method: 'GET',
                     credentials: 'same-origin'
                 });
@@ -5960,7 +5960,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                     console.error('Failed to log out:', response.status);
                     return;
                 }
-                window.location.href = '/login';
+                window.location.href = '/${globalThis.userID}/login';
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -5990,7 +5990,7 @@ async function renderHomePage(proxySettings, isPassSet) {
             }
                     
             try {
-                const response = await fetch('/panel/password', {
+                const response = await fetch('/${globalThis.userID}/panel/password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain'
@@ -6003,13 +6003,13 @@ async function renderHomePage(proxySettings, isPassSet) {
                     modal.style.display = "none";
                     document.body.style.overflow = "";
                     alert("\u2705 Password changed successfully! \u{1F44D}");
-                    window.location.href = '/login';
+                    window.location.href = '/${globalThis.userID}/login';
                 } else if (response.status === 401) {
                     const errorMessage = await response.text();
                     passwordError.textContent = '\u26A0\uFE0F ' + errorMessage;
                     console.error(errorMessage, response.status);
                     alert('\u26A0\uFE0F Session expired! Please login again.');
-                    window.location.href = '/login';
+                    window.location.href = '/${globalThis.userID}/login';
                 } else {
                     const errorMessage = await response.text();
                     passwordError.textContent = '\u26A0\uFE0F ' + errorMessage;
@@ -6080,9 +6080,9 @@ async function handlePanel(request, env) {
     return new Response("Success", { status: 200 });
   }
   const { proxySettings } = await getDataset(request, env);
-  const pwd = await env.kv.get("pwd");
+  const pwd = await env.\u5E93.get("pwd");
   if (pwd && !auth)
-    return Response.redirect(`${globalThis.urlOrigin}/login`, 302);
+    return Response.redirect(`${globalThis.urlOrigin}/${globalThis.userID}/login`, 302);
   const isPassSet = pwd?.length >= 8;
   return await renderHomePage(proxySettings, isPassSet);
 }
@@ -6120,20 +6120,20 @@ function initializeParams(request, env) {
   globalThis.panelVersion = "3";
   globalThis.defaultHttpPorts = ["80", "8080", "2052", "2082", "2086", "2095", "8880"];
   globalThis.defaultHttpsPorts = ["443", "8443", "2053", "2083", "2087", "2096"];
-  globalThis.userID = env.UUID;
-  globalThis.TRPassword = env.TR_PASS;
-  globalThis.proxyIP = proxyIPs ? proxyIPs[Math.floor(Math.random() * proxyIPs.length)] : "bpb.yousef.isegaro.com";
+  globalThis.userID = env.\u7F16\u53F7;
+  globalThis.trojanPassword = env.\u5BC6\u7801;
+  globalThis.proxyIP = proxyIPs ? proxyIPs[Math.floor(Math.random() * proxyIPs.length)] : atob("YnBiLnlvdXNlZi5pc2VnYXJvLmNvbQ==");
   globalThis.hostName = request.headers.get("Host");
   globalThis.pathName = url.pathname;
   globalThis.client = searchParams.get("app");
   globalThis.urlOrigin = url.origin;
   globalThis.dohURL = env.DOH_URL || "https://cloudflare-dns.com/dns-query";
-  if (pathName !== "/secrets") {
-    if (!userID || !globalThis.TRPassword)
-      throw new Error(`Please set UUID and Trojan password first. Please visit <a href="https://${hostName}/secrets" target="_blank">here</a> to generate them.`, { cause: "init" });
+  if (pathName !== `/${globalThis.userID}/secrets`) {
+    if (!userID || !trojanPassword)
+      throw new Error(`Please set \u7F16\u53F7 and \u5BC6\u7801 first. Please visit <a href="https://${hostName}/${globalThis.userID}/secrets" target="_blank">here</a> to generate them.`, { cause: "init" });
     if (userID && !isValidUUID(userID))
-      throw new Error(`Invalid UUID: ${userID}`, { cause: "init" });
-    if (typeof env.kv !== "object")
+      throw new Error(`Invalid UUID: ${globalThis.userID}`, { cause: "init" });
+    if (typeof env.\u5E93 !== "object")
       throw new Error("KV Dataset is not properly set! Please refer to tutorials.", { cause: "init" });
   }
 }
@@ -7641,7 +7641,7 @@ async function getXrayCustomConfigs(request, env, isFragment) {
     } catch (error) {
       console.log("An error occured while parsing chain proxy: ", error);
       chainProxy = void 0;
-      await env.kv.put("proxySettings", JSON.stringify({
+      await env.\u5E93.put("proxySettings", JSON.stringify({
         ...proxySettings,
         outProxy: "",
         outProxyParams: {}
@@ -8474,7 +8474,7 @@ async function getSingBoxCustomConfig(request, env, isFragment) {
     } catch (error) {
       console.log("An error occured while parsing chain proxy: ", error);
       chainProxy = void 0;
-      await env.kv.put("proxySettings", JSON.stringify({
+      await env.\u5E93.put("proxySettings", JSON.stringify({
         ...proxySettings,
         outProxy: "",
         outProxyParams: {}
@@ -9108,7 +9108,7 @@ async function getClashNormalConfig(request, env) {
     } catch (error) {
       console.log("An error occured while parsing chain proxy: ", error);
       chainProxy = void 0;
-      await env.kv.put("proxySettings", JSON.stringify({
+      await env.\u5E93.put("proxySettings", JSON.stringify({
         ...proxySettings,
         outProxy: "",
         outProxyParams: {}
@@ -9541,17 +9541,17 @@ var worker_default = {
             if (globalThis.client === "singbox" || globalThis.client === "hiddify")
               return await getSingBoxWarpConfig(request, env, globalThis.client);
             return await getXrayWarpConfigs(request, env, globalThis.client);
-          case "/panel":
+          case `/${globalThis.userID}/panel`:
             return await handlePanel(request, env);
-          case "/login":
+          case `/${globalThis.userID}/login`:
             return await login(request, env);
-          case "/logout":
+          case `/${globalThis.userID}/logout`:
             return logout();
-          case "/panel/password":
+          case `/${globalThis.userID}/panel/password`:
             return await resetPassword(request, env);
-          case "/my-ip":
+          case `/${globalThis.userID}/my-ip`:
             return await getMyIP(request);
-          case "/secrets":
+          case `/${globalThis.userID}/secrets`:
             return await renderSecretsPage();
           default:
             return await fallback(request);
