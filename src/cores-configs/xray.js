@@ -174,7 +174,7 @@ function buildXrayRoutingRules (proxySettings, outboundAddrs, isChain, isBalance
         }
     ];
 
-    if (!isWorkerLess && (isDomainRule || isBypass)) rules.push({
+    if (!isWorkerLess && (isDomainRule || isBypass) && localDNS !== 'localhost') rules.push({
         inboundTag: ["dns"],
         ip: [localDNS],
         port: "53",
@@ -310,7 +310,6 @@ function buildXrayVLOutbound (tag, address, port, host, sni, proxyIP, isFragment
     if (isFragment) {
         sockopt.dialerProxy = "fragment";
     } else {
-        sockopt.tcpKeepAliveIdle = 30;
         sockopt.domainStrategy = enableIPv6 ? "UseIPv4v6" : "UseIPv4";
     }
     
@@ -359,7 +358,6 @@ function buildXrayTROutbound (tag, address, port, host, sni, proxyIP, isFragment
     if (isFragment) {
         sockopt.dialerProxy = "fragment";
     } else {
-        sockopt.tcpKeepAliveIdle = 30;
         sockopt.domainStrategy = enableIPv6 ? "UseIPv4v6" : "UseIPv4";
     }
     
@@ -599,11 +597,6 @@ function buildFreedomOutbound (proxySettings, isFragment, isUdpNoises, tag) {
         tag: tag,
         protocol: "freedom",
         settings: {},
-        streamSettings: {
-            sockopt: {
-                tcpKeepAliveIdle: 30
-            },
-        },
     };
 
     if (isFragment) {
